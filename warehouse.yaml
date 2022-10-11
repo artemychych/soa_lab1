@@ -1,0 +1,409 @@
+openapi: 3.0.3
+info:
+  title: Warehouse
+  description: Warehouse service for SOA Lab 1
+  version: 1.0.0
+servers:
+  - url: 'https://localhost:6601/service'
+paths:
+  /warehouse/products:
+    get:
+      summary: Get list of Products
+      description: Get list of Products
+      operationId: getProducts
+      tags:
+        - Product
+      responses:
+        '200':
+           description: Returns an array of products
+           content:
+             application/json:
+               schema:
+                 $ref: '#/components/schemas/Products'
+        default:
+         description: Returns error code, message and time of an error
+         content:
+           application/json:
+             schema:
+               $ref: '#/components/schemas/Error'
+      parameters:
+        - name: sort
+          in: query
+          description: Parameters for sort Product schema
+          required: false
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+              default: id
+              enum:
+                - id
+                - -id
+                - name
+                - -name
+                - creationDate
+                - -creationDate
+                - coordinates.x
+                - coordinates.y
+                - -coordinates.x
+                - -coordinates.y
+                - price
+                - -price
+                - manufactureCost
+                - -manufactureCost
+                - unitOfMeasure
+                - -unitOfMeasure
+                - manufacturer.id
+                - manufacturer.name
+                - manufacturer.fullName
+                - manufacturer.annualTurnover
+                - manufacturer.employeesCount
+                - manufacturer.officialAddress.zipCode
+                - manufacturer.officialAddress.town.x
+                - manufacturer.officialAddress.town.y
+                - manufacturer.officialAddress.town.z
+                - -manufacturer.id
+                - -manufacturer.name
+                - -manufacturer.fullName
+                - -manufacturer.annualTurnover
+                - -manufacturer.employeesCount
+                - -manufacturer.officialAddress.zipCode
+                - -manufacturer.officialAddress.town.x
+                - -manufacturer.officialAddress.town.y
+                - -manufacturer.officialAddress.town.z
+        - name: filter
+          in: query
+          required: false
+          description: Fields for filtering
+          schema:
+            type: array
+            items:
+              type: string
+              example: price[gr]=600
+          style: deepObject
+          explode: true
+        - name: page
+          in: query
+          required: false
+          description: Count of pages
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: pageSize
+          in: query
+          required: false
+          description: Count of products in 1 page
+          schema:
+            type: integer
+            default: 10
+            minimum: 1
+    post:
+      summary: Add new Product
+      operationId: addProduct
+      tags:
+        - Product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Returns added Product
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        default:
+          description: Returns error code, message and time of an error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /warehouse/products/{id}:
+    get:
+      summary: Get product by id
+      description: Get product by id
+      operationId: getProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Id of product
+          schema:
+            type: integer
+            format: int64
+            nullable: false
+            minimum: 1
+            example: 1
+      tags:
+        - Product
+      responses:
+        '200':
+          description: Returns product by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        default:
+          description: Returns error code, message and time of an error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update Product by id
+      description: Update Product by id
+      operationId: updateProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of Product
+          schema:
+            type: integer
+            format: int64
+            nullable: false
+            minimum: 0
+            exclusiveMinimum: true
+            example: 1
+      tags:
+        - Product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Returns updated product
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        default:
+          description: Returns error code, message and time of an error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete product by ID
+      description: Delete product by ID
+      operationId: deleteProduct
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of product which need to be deleted
+          schema:
+            type: integer
+            format: int64
+            nullable: false
+            minimum: 1
+            example: 1
+      tags:
+        - Product
+      responses:
+        '204':
+          description: Successfully deleted product by ID
+        default:
+          description: Returns error code, message and time of an error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /warehouse/products/delete/{unitOfMeasure}:
+    delete:
+      summary: Delete existing first product by equal unitOfMeasure
+      operationId: deleteFirstProductByMeasure
+      tags:
+        - Product
+      parameters:
+        - name: unitOfMeasure
+          in: path
+          required: true
+          description: unitOfMeasure to be deleted
+          schema:
+            type: string
+            nullable: false
+            example: kilograms
+      responses:
+        '204':
+          description: Successfully deleted first product with equal unitOfMeasure
+        default:
+          description: Returns error code, message and time of an error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /warehouse/products/avg-manufactureCost:
+    get:
+      summary: Get average cost of manufacture
+      operationId: avgManufactureCost
+      tags:
+        - Catalog
+      responses:
+        '200':
+          description: Returns average cost of manufacture
+        default:
+          description: Returns error code, message and time of an error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /warehouse/products/name/{substring}:
+    get:
+      summary: Get array of Products which have that substring
+      operationId: getProductsBySubstring
+      tags:
+        - Product
+      responses:
+        '200':
+          description: Returns array of Products which have that substring
+        default:
+          description: Returns error code, message and time of an error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    UnitOfMeasure:
+      type: string
+      enum:
+        - kilograms
+        - pcs
+        - milligrams
+    Location:
+      type: object
+      properties:
+        x:
+          type: number
+          format: double
+        y:
+          type: number
+          format: float
+        z:
+          type: number
+          format: double
+    Address:
+      type: object
+      properties:
+        zipCode:
+          type: string
+          example: zipCode example
+          minLength: 3
+          nullable: false
+        town:
+          $ref: '#/components/schemas/Location'
+    Organization:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          nullable: false
+        name:
+          type: string
+          nullable: false
+          minLength: 1
+        fullName:
+          type: string
+          maxLength: 1038
+          nullable: false
+          minLength: 1
+        annualTurnover:
+          type: number
+          format: float
+          minimum: 1
+          exclusiveMinimum: true
+        employeesCount:
+          type: integer
+          format: int32
+          minimum: 1
+
+        officialAddress:
+          $ref: '#/components/schemas/Address'
+    Coordinates:
+      type: object
+      properties:
+        x:
+          type: number
+          format: float
+          minimum: -291
+        y:
+          type: integer
+          format: int32
+          minimum: -746
+          nullable: false
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+          example: 1
+          description: ID for Product
+        name:
+          type: string
+          nullable: false
+          minLength: 1
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+        creationDate:
+          type: string
+          format: date-time
+          nullable: false
+          example: 2022-09-11T17:32:28Z
+        price:
+          type: integer
+          format: int64
+          minimum: 1
+        manufactureCost:
+          type: integer
+          format: int32
+          nullable: false
+        unitOfMeasure:
+          $ref: '#/components/schemas/UnitOfMeasure'
+        manufacturer:
+          $ref: '#/components/schemas/Organization'
+      xml:
+        name: Product
+    Products:
+      type: array
+      xml:
+        wrapped: true
+        name: Products
+      items:
+        $ref: '#/components/schemas/Product'
+    Error:
+      type: object
+      required:
+        - httpCode
+        - message
+        - time
+      properties:
+        code:
+          type: integer
+          format: int32
+          example: 500
+        message:
+          type: string
+          example: Internal server error
+        time:
+          type: string
+          format: date-time
+          example: 2022-11-10T23:00:32Z
+
+
+
+
+
+
+

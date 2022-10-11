@@ -1,0 +1,72 @@
+openapi: 3.0.3
+info:
+  title: Ebay
+  description: Ebay service
+  version: 1.0.0
+servers:
+  - url: 'https://localhost:6601/ebay'
+paths:
+  /filter/manufacturer/{manufacturer-id}:
+    get:
+      summary: get all products with that manufacturer ID
+      description: get all products with that manufacturer ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+            nullable: false
+            minimum: 1
+            example: 12
+      tags:
+        - Ebay
+      responses:
+        '200':
+          description: Returns array of products with manufacturer-id
+          content:
+            application/json:
+              schema:
+                $ref: './warehouse.yaml#/components/schemas/Product'
+        default:
+          description: Returns error code, message and time of an error
+          content:
+            application/json:
+              schema:
+                $ref: './warehouse.yaml#/components/schemas/Error'
+  /filter/price/{price-from}/{price-to}:
+    get:
+      summary: get all product with price-from <= price <= price-to
+      description: get all product with price-from <= price <= price-to
+      tags:
+        - Ebay
+      parameters:
+        - name: priceFrom
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: priceTo
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '200':
+          description: Returns array of products with price-from <= price <= price-to
+          content:
+            application/json:
+              schema:
+                $ref: './warehouse.yaml#/components/schemas/Product'
+        default:
+          description: Returns error code, message and time of an error
+          content:
+            application/json:
+              schema:
+                $ref: './warehouse.yaml#/components/schemas/Error'
+
