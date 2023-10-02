@@ -1,0 +1,111 @@
+openapi: 3.0.3
+info:
+  title: Booking
+  description: Booking service
+  version: 1.0.0
+servers:
+  - url: 'https://localhost:6601/booking/v1'
+paths:
+  /sell/{ticket-id}/{person-id}/{price}:
+    post:
+      summary: Продать билет за указанную сумму
+      operationId: sellTicket
+      tags:
+        - Booking
+      parameters:
+        - name: ticket-id
+          in: path
+          required: true
+          description: id объекта Ticket
+          schema:
+            type: integer
+            format: int64
+            nullable: false
+            minimum: 1
+            example: 1
+        - name: person-id
+          in: path
+          required: true
+          description: id объекта Person
+          schema:
+            type: integer
+            format: int64
+            nullable: false
+            minimum: 1
+            example: 1
+        - name: price
+          in: path
+          required: true
+          description: Цена объекта Ticket
+          schema:
+            type: number
+            format: float
+            minimum: 0
+            exclusiveMinimum: true
+            example: 25.4
+      responses:
+        '200':
+          description: Билет был успешно куплен
+        '400':
+          description: Невалидные данные
+          content:
+            application/xml:
+              schema:
+                $ref: './ticket.yaml#/components/schemas/Error400'
+        '404':
+          description: Элемент не найден
+          content:
+            application/xml:
+              schema:
+                $ref: './ticket.yaml#/components/schemas/Error404'
+        default:
+          description: Возращает код ошибки, сообщение и время
+          content:
+            application/xml:
+              schema:
+                $ref: './ticket.yaml#/components/schemas/Error'
+  /event/{event-id}/cancel:
+    delete:
+      summary: отменить указанное событие, удалив все билеты на него
+      description: Удалить все объекты Ticket с именем event-id
+      operationId: cancelEvent
+      parameters:
+        - name: event-id
+          in: path
+          required: true
+          description: Имя события, которое должно быть отменено
+          schema:
+            type: string
+            nullable: false
+            minLength: 1
+            example: Metallica_2023_Moscow
+      tags:
+        - Booking
+      responses:
+        '204':
+          description: Все билеты с указанным name объекта Ticket были удалены
+        '404':
+          description: Элемент не найден
+          content:
+            application/xml:
+              schema:
+                $ref: './ticket.yaml#/components/schemas/Error404'
+        '400':
+          description: Невалидные данные
+          content:
+            application/xml:
+              schema:
+                $ref: './ticket.yaml#/components/schemas/Error400'
+        default:
+          description: Возращает код ошибки, сообщение и время
+          content:
+            application/xml:
+              schema:
+                $ref: './ticket.yaml#/components/schemas/Error'
+
+
+
+
+
+
+  
